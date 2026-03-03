@@ -1,35 +1,53 @@
 import yfinance as yf
-# We can use nsetools to get all active NSE codes
-from nsetools import Nse
-nse = Nse()
+import pandas as pd
+import requests
+import io
 
-def scan_entire_market():
-    # 1. Automatically get all stock symbols from NSE
-    all_stock_codes = nse.get_stock_codes() 
-    symbols = [f"{code}.NS" for code in all_stock_codes.keys()]
+def get_full_nse_list():
+    """Downloads the official EQUITY_L.csv from NSE to get all listed tickers."""
+    url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
     
-    undervalued_gems = []
+    try:
+        print("📥 Downloading official NSE Equity list...")
+        response = requests.get(url, headers=headers, timeout=10)
+        df = pd.read_csv(io.StringIO(response.text))
+        
+        # Yahoo Finance requires '.NS' suffix for NSE stocks
+        symbols = [f"{row['SYMBOL']}.NS" for _, row in df.iterrows()]
+        print(f"✅ Found {len(symbols)} active tickers.")
+        return symbols
+    except Exception as e:
+        print(f"❌ Failed to download NSE list: {e}")
+        # Fallback to a small list if download fails
+        return ["RELIANCE.NS", "TCS.NS", "HDFCBANK.NS"]
+
+def scan_for_value():
+    # 1. Dynamically discover the entire market
+    full_market = get_full_nse_list()
     
-    # 2. Scan each stock (we'll limit this to avoid rate limits)
-    # For now, let's scan the top 100
-    for ticker in symbols[:100]:
+    picks = []
+    # 2. Analyze a subset (e.g., first 100) to stay within GitHub Action limits
+    # You can increase this, but be mindful of the 30-min window
+    for ticker in full_market[:150]: 
         try:
             stock = yf.Ticker(ticker)
             info = stock.info
             
-            # Advanced Undervalued Logic
             pe = info.get('forwardPE', 100)
-            sector_pe = info.get('sector', "Unknown")
+            growth = info.get('earningsGrowth', 0)
             
-            # Alert if P/E is historically low
-            if pe < 15: 
-                undervalued_gems.append({
-                    "ticker": ticker,
-                    "sector": sector_pe,
+            # Logic: PE < 25 and Growth > 15% (Adjust for 2026 market)
+            if pe < 25 and growth > 0.15:
+                picks.append({
+                    "symbol": ticker.replace(".NS", ""),
                     "price": info.get('currentPrice'),
-                    "reason": "Low P/E Ratio"
+                    "pe": round(pe, 1),
+                    "sector": info.get('sector', 'N/A'),
+                    "reason": "Discovery: High Growth / Low Valuation"
                 })
-        except:
-            continue
-            
-    return undervalued_gems
+        except: continue
+        
+    return picks
