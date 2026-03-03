@@ -4,30 +4,28 @@ from valuation import get_undervalued_gems
 from macro import get_market_intelligence
 
 def orchestrate():
-    print(f"🚀 Started Analysis at {datetime.datetime.now()}")
-
-    # 1. Run Value Engine (Scouts for cheap stocks)
-    print("🔎 Scanning Nifty for Value Gems...")
-    gems = get_undervalued_gems()
-
-    # 2. Run Macro Engine (Scouts for Contracts & Global News)
-    print("🌎 Scanning Global News & Govt Contracts...")
-    intel = get_market_intelligence()
-
-    # 3. Consolidate Data
-    final_data = {
-        "last_updated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "market_status": "ACTIVE" if 9 <= datetime.datetime.now().hour < 16 else "CLOSED",
-        "value_picks": gems,
-        "govt_contracts": intel["contracts"],
-        "global_alerts": intel["global_alerts"]
-    }
-
-    # 4. Save to Private JSON
-    with open('data.json', 'w') as f:
-        json.dump(final_data, f, indent=4)
+    print(f"🚀 Execution Started: {datetime.datetime.now()}")
     
-    print(f"✅ Success! data.json updated with {len(gems)} gems and {len(intel['contracts'])} contracts.")
+    # 1. Test Valuation
+    print("🔎 Calling valuation.scan_for_value()...")
+    value_picks = valuation.scan_for_value()
+    print(f"✅ Found {len(value_picks)} undervalued stocks.")
 
+    # 2. Test Macro
+    print("🌎 Calling macro.get_latest_intelligence()...")
+    market_intel = macro.get_latest_intelligence()
+    print(f"✅ Found {len(market_intel['contracts'])} new contracts.")
+
+    # 3. Final Check
+    if not value_picks and not market_intel['contracts']:
+        print("⚠️ WARNING: No data found to update! data.json will remain the same.")
+        final_output = {
+        "meta": {
+            "last_updated": datetime.datetime.now().isoformat(),
+            "run_id": str(uuid.uuid4())[:8] # Adds a unique 8-character code
+        },
+        "ai_picks": value_picks, 
+        "insights": market_intel["sector_alerts"]
+    }
 if __name__ == "__main__":
     orchestrate()
