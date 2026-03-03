@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "last_updated": "2026-03-03T16:49:44.990805Z"
+  },
+  "insights": [
+    {
+      "id": "evt_2",
+      "headline": "India File: Iran conflict threatens sweet-spot economy - Reuters",
+      "analysis": {
+        "impacted_sector": "Energy",
+        "tickers": [
+          "ONGC.NS",
+          "OIL.NS"
+        ],
+        "historical_insight": "Historically, major oil supply disruptions correlate with a 5-7% short-term gain in domestic upstream oil companies.",
+        "historical_probability_up": 0.75
+      }
+    },
+    {
+      "id": "evt_3",
+      "headline": "Iran Conflict Raises Oil, Rupee, and Trade Risks for India\u2019s Economy - India Briefing",
+      "analysis": {
+        "impacted_sector": "Energy",
+        "tickers": [
+          "ONGC.NS",
+          "OIL.NS"
+        ],
+        "historical_insight": "Historically, major oil supply disruptions correlate with a 5-7% short-term gain in domestic upstream oil companies.",
+        "historical_probability_up": 0.75
+      }
+    }
+  ]
+}
