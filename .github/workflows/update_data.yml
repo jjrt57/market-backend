@@ -1,8 +1,9 @@
-name: Market Data Updater
+name: Market Intelligence Engine
 
 on:
   schedule:
-    - cron: "*/2 * * * *"
+    # Run every 30 minutes to stay within NSE/Yahoo rate limits
+    - cron: "*/30 * * * *" 
   workflow_dispatch:
 
 jobs:
@@ -10,26 +11,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
+      - name: Install Full Setup Dependencies
         run: |
-          pip install feedparser yfinance requests
+          python -m pip install --upgrade pip
+          # Added pandas for NSE CSV parsing and lxml for faster yfinance
+          pip install feedparser yfinance requests pandas lxml
 
-      - name: Run Market Analyzer
-        env:
-          HF_API_KEY: ${{ secrets.HF_API_KEY }}
-        run: python analyzer.py
+      - name: Run Modular Intelligence Engine
+        run: python main.py
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update market data"
-          git push
+          # Only commits if there are changes; pull --rebase prevents 500/sync errors
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update market discovery" && git pull --rebase origin main && git push)
