@@ -1,31 +1,33 @@
+# 1. These imports are the most important part!
+import valuation  # This looks for valuation.py
+import macro      # This looks for macro.py
 import json
 import datetime
-from valuation import get_undervalued_gems
-from macro import get_market_intelligence
+
+print("🚀 SCRIPT STARTING...")
 
 def orchestrate():
-    print(f"🚀 Execution Started: {datetime.datetime.now()}")
+    print(f"⏰ Execution Time: {datetime.datetime.now()}")
     
-    # 1. Test Valuation
-    print("🔎 Calling valuation.scan_for_value()...")
-    value_picks = valuation.scan_for_value()
-    print(f"✅ Found {len(value_picks)} undervalued stocks.")
+    # 2. Now these will work because they are imported above
+    print("🔎 Calling valuation engine...")
+    gems = valuation.get_undervalued_gems()
+    print(f"✅ Found {len(gems)} gems.")
 
-    # 2. Test Macro
-    print("🌎 Calling macro.get_latest_intelligence()...")
-    market_intel = macro.get_latest_intelligence()
-    print(f"✅ Found {len(market_intel['contracts'])} new contracts.")
-
-    # 3. Final Check
-    if not value_picks and not market_intel['contracts']:
-        print("⚠️ WARNING: No data found to update! data.json will remain the same.")
-        final_output = {
-        "meta": {
-            "last_updated": datetime.datetime.now().isoformat(),
-            "run_id": str(uuid.uuid4())[:8] # Adds a unique 8-character code
-        },
-        "ai_picks": value_picks, 
-        "insights": market_intel["sector_alerts"]
+    print("🌎 Calling macro intelligence...")
+    intel = macro.get_latest_intelligence()
+    
+    # 3. Consolidate and Save
+    output = {
+        "last_updated": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "ai_picks": gems,
+        "market_intelligence": intel
     }
+    
+    with open('data.json', 'w') as f:
+        json.dump(output, f, indent=4)
+    print("💾 data.json updated successfully.")
+
+# This tells Python to actually run the orchestrate function
 if __name__ == "__main__":
     orchestrate()
