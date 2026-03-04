@@ -1,0 +1,356 @@
+{
+    "meta": {
+        "last_updated": "2026-03-04 17:00:42"
+    },
+    "premium_value_picks": [
+        {
+            "symbol": "360ONE",
+            "price": 1066.4,
+            "pe": 29.8,
+            "sector": "Financial Services"
+        },
+        {
+            "symbol": "5PAISA",
+            "price": 303.8,
+            "pe": 19.6,
+            "sector": "Financial Services"
+        },
+        {
+            "symbol": "AADHARHFC",
+            "price": 453.1,
+            "pe": 14.7,
+            "sector": "Financial Services"
+        },
+        {
+            "symbol": "AARTIDRUGS",
+            "price": 360.45,
+            "pe": 14.6,
+            "sector": "Healthcare"
+        },
+        {
+            "symbol": "AARTIIND",
+            "price": 412.5,
+            "pe": 25.7,
+            "sector": "Basic Materials"
+        },
+        {
+            "symbol": "AAVAS",
+            "price": 1233.2,
+            "pe": 12.3,
+            "sector": "Financial Services"
+        },
+        {
+            "symbol": "ABAN",
+            "price": 20.23,
+            "pe": 0.4,
+            "sector": "Energy"
+        },
+        {
+            "symbol": "ABCAPITAL",
+            "price": 321.55,
+            "pe": 16.0,
+            "sector": "Financial Services"
+        },
+        {
+            "symbol": "ABFRL",
+            "price": 64.09,
+            "pe": 10.3,
+            "sector": "Consumer Cyclical"
+        },
+        {
+            "symbol": "ABREL",
+            "price": 1226.9,
+            "pe": 9.8,
+            "sector": "Real Estate"
+        },
+        {
+            "symbol": "ABSLAMC",
+            "price": 867.95,
+            "pe": 21.3,
+            "sector": "Financial Services"
+        },
+        {
+            "symbol": "ACC",
+            "price": 1529.7,
+            "pe": 12.8,
+            "sector": "Basic Materials"
+        },
+        {
+            "symbol": "ACCELYA",
+            "price": 1177.9,
+            "pe": 18.8,
+            "sector": "Technology"
+        },
+        {
+            "symbol": "ACE",
+            "price": 852.6,
+            "pe": 22.0,
+            "sector": "Industrials"
+        },
+        {
+            "symbol": "ACI",
+            "price": 529.35,
+            "pe": 20.4,
+            "sector": "Basic Materials"
+        },
+        {
+            "symbol": "ACMESOLAR",
+            "price": 224.57,
+            "pe": 21.8,
+            "sector": "Utilities"
+        },
+        {
+            "symbol": "ADANIPORTS",
+            "price": 1434.4,
+            "pe": 20.5,
+            "sector": "Industrials"
+        },
+        {
+            "symbol": "ADANIPOWER",
+            "price": 137.82,
+            "pe": 20.2,
+            "sector": "Utilities"
+        },
+        {
+            "symbol": "ADOR",
+            "price": 1012.6,
+            "pe": 14.9,
+            "sector": "Industrials"
+        },
+        {
+            "symbol": "ADSL",
+            "price": 108.64,
+            "pe": 8.8,
+            "sector": "Technology"
+        },
+        {
+            "symbol": "ADVENZYMES",
+            "price": 284.7,
+            "pe": 18.4,
+            "sector": "Basic Materials"
+        },
+        {
+            "symbol": "AEGISLOG",
+            "price": 647.35,
+            "pe": 25.6,
+            "sector": "Energy"
+        },
+        {
+            "symbol": "AFCONS",
+            "price": 279.3,
+            "pe": 16.9,
+            "sector": "Industrials"
+        },
+        {
+            "symbol": "AGI",
+            "price": 520.8,
+            "pe": 8.2,
+            "sector": "Consumer Cyclical"
+        },
+        {
+            "symbol": "AHLEAST",
+            "price": 160.34,
+            "pe": 8.5,
+            "sector": "Consumer Cyclical"
+        },
+        {
+            "symbol": "AHLUCONT",
+            "price": 733.2,
+            "pe": 15.0,
+            "sector": "Industrials"
+        },
+        {
+            "symbol": "AIAENG",
+            "price": 3623.0,
+            "pe": 27.2,
+            "sector": "Industrials"
+        },
+        {
+            "symbol": "AJANTPHARM",
+            "price": 2916.3,
+            "pe": 29.3,
+            "sector": "Healthcare"
+        },
+        {
+            "symbol": "AJAXENGG",
+            "price": 489.65,
+            "pe": 19.4,
+            "sector": "Industrials"
+        },
+        {
+            "symbol": "AJMERA",
+            "price": 125.92,
+            "pe": 5.2,
+            "sector": "Real Estate"
+        },
+        {
+            "symbol": "AKSHOPTFBR",
+            "price": 4.46,
+            "pe": 1.3,
+            "sector": "Technology"
+        },
+        {
+            "symbol": "AKUMS",
+            "price": 467.2,
+            "pe": 18.9,
+            "sector": "Healthcare"
+        },
+        {
+            "symbol": "AKZOINDIA",
+            "price": 2894.5,
+            "pe": 27.5,
+            "sector": "Basic Materials"
+        }
+    ],
+    "high_potential_budget_under_500": [
+        {
+            "symbol": "AAKASH",
+            "price": 9.92,
+            "icr": 10,
+            "growth": "33%",
+            "volume_status": "\ud83e\udde8 MASSIVE VOLUME SHOCK (14x Avg)",
+            "institutional_backing": "Retail Heavy",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "AARON",
+            "price": 140.9,
+            "icr": 10,
+            "growth": "26%",
+            "volume_status": "\ud83e\udde8 MASSIVE VOLUME SHOCK (8x Avg)",
+            "institutional_backing": "Retail Heavy",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "AIROLAM",
+            "price": 92.93,
+            "icr": 10,
+            "growth": "29%",
+            "volume_status": "\ud83e\udde8 MASSIVE VOLUME SHOCK (3x Avg)",
+            "institutional_backing": "Retail Heavy",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "ANDHRSUGAR",
+            "price": 73.1,
+            "icr": 10,
+            "growth": "24%",
+            "volume_status": "\ud83e\udde8 MASSIVE VOLUME SHOCK (8x Avg)",
+            "institutional_backing": "Retail Heavy",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "ANSALAPI",
+            "price": 4.02,
+            "icr": 10,
+            "growth": "71%",
+            "volume_status": "\ud83d\udcc8 High Volume (2.6x Avg)",
+            "institutional_backing": "\ud83d\udc54 HIGH CONVICTION",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "ANTGRAPHIC",
+            "price": 0.79,
+            "icr": 10,
+            "growth": "26%",
+            "volume_status": "\ud83d\udcc8 High Volume (2.6x Avg)",
+            "institutional_backing": "Retail Heavy",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "APOLLO",
+            "price": 212.04,
+            "icr": 10,
+            "growth": "70%",
+            "volume_status": "\ud83d\udcc8 High Volume (2.9x Avg)",
+            "institutional_backing": "\ud83d\udc54 HIGH CONVICTION",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "ARIS",
+            "price": 106.16,
+            "icr": 10,
+            "growth": "49%",
+            "volume_status": "\ud83d\udcc8 High Volume (2.3x Avg)",
+            "institutional_backing": "\ud83d\udc54 HIGH CONVICTION",
+            "status": "\ud83d\udd25 PRO APPROVED",
+            "whale_alert": "\ud83d\udea8 MASSIVE BLOCK DEAL DETECTED TODAY"
+        },
+        {
+            "symbol": "ASHOKLEY",
+            "price": 200.46,
+            "icr": 10,
+            "growth": "24%",
+            "volume_status": "\ud83d\udcc8 High Volume (2.5x Avg)",
+            "institutional_backing": "\ud83c\udf0d STRONG FII/DII",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "ASMS",
+            "price": 9.11,
+            "icr": 10,
+            "growth": "455%",
+            "volume_status": "\ud83e\udde8 MASSIVE VOLUME SHOCK (4x Avg)",
+            "institutional_backing": "\ud83d\udc54 HIGH CONVICTION",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "BAFNAPH",
+            "price": 107.0,
+            "icr": 10,
+            "growth": "15%",
+            "volume_status": "\ud83e\udde8 MASSIVE VOLUME SHOCK (6x Avg)",
+            "institutional_backing": "\ud83d\udc54 HIGH CONVICTION",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "BALRAMCHIN",
+            "price": 491.7,
+            "icr": 10,
+            "growth": "22%",
+            "volume_status": "\ud83e\udde8 MASSIVE VOLUME SHOCK (28x Avg)",
+            "institutional_backing": "\ud83c\udf0d STRONG FII/DII",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "BCONCEPTS",
+            "price": 225.55,
+            "icr": 10,
+            "growth": "32%",
+            "volume_status": "\ud83d\udcc8 High Volume (2.8x Avg)",
+            "institutional_backing": "\ud83d\udc54 HIGH CONVICTION",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "BEL",
+            "price": 446.85,
+            "icr": 10,
+            "growth": "24%",
+            "volume_status": "\ud83d\udcc8 High Volume (2.2x Avg)",
+            "institutional_backing": "\ud83c\udf0d STRONG FII/DII | \ud83d\udc54 HIGH CONVICTION",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "BHAGERIA",
+            "price": 149.68,
+            "icr": 10,
+            "growth": "42%",
+            "volume_status": "\ud83d\udcc8 High Volume (2.8x Avg)",
+            "institutional_backing": "\ud83d\udc54 HIGH CONVICTION",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        },
+        {
+            "symbol": "BHAGYANGR",
+            "price": 163.42,
+            "icr": 10,
+            "growth": "46%",
+            "volume_status": "\ud83d\udcc8 High Volume (2.7x Avg)",
+            "institutional_backing": "\ud83d\udc54 HIGH CONVICTION",
+            "status": "\ud83d\udd25 PRO APPROVED"
+        }
+    ],
+    "market_intelligence": {
+        "contracts": [],
+        "sector_alerts": []
+    }
+}
