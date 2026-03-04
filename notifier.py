@@ -1,53 +1,66 @@
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import os
 import json
+import logging
 
-def send_alert(new_stocks):
-    # Fetch the single email secret package from GitHub
-    email_data_raw = os.environ.get('EMAIL_DATA')
+logger = logging.getLogger(__name__)
 
+def send_alert(new_discoveries):
+    """Sends a professional email alert for new stock discoveries."""
+    email_data_raw = os.environ.get("EMAIL_DATA")
     if not email_data_raw:
-        print("⚠️ EMAIL_DATA secret not found. Skipping email alert.")
+        logger.warning("⚠️ EMAIL_DATA secret not found. Skipping email.")
         return
 
     try:
-        # Open the JSON package to extract the keys
-        credentials = json.loads(email_data_raw)
-        sender = credentials.get('EMAIL_SENDER')
-        password = credentials.get('EMAIL_PASSWORD')
-        receiver = credentials.get('EMAIL_RECEIVER')
+        creds = json.loads(email_data_raw)
+        sender_email = creds.get("SENDER_EMAIL")
+        receiver_email = creds.get("RECEIVER_EMAIL")
+        password = creds.get("PASSWORD")
 
-        if not sender or not password or not receiver:
-            print("⚠️ Missing sender, password, or receiver in EMAIL_DATA JSON. Skipping email alert.")
-            return
-
-    except json.JSONDecodeError:
-        print("❌ Failed to parse EMAIL_DATA. Make sure it is formatted as valid JSON.")
-        return
-
-    # Create the email content
-    subject = f"🚀 AI Market Alert: {len(new_stocks)} New Gems Discovered!"
-    
-    body = "Your AI Backend just discovered these new stocks that meet your strict criteria:\n\n"
-    
-    for stock in new_stocks:
-        body += f"🔹 {stock['symbol']}\n"
-        body += f"   - Price: ₹{stock['price']}\n"
-        body += f"   - Tag: {stock.get('status', stock.get('potential_tag', 'Value Pick'))}\n\n"
+        # --- 1. Dynamic Subject Line Logic ---
+        high_conviction = [s for s in new_discoveries if s.get('sentiment_label') == "High Sentiment"]
+        whale_hits = [s for s in new_discoveries if s.get('whale_alert') != "None"]
         
-    body += "Happy Investing!\n- Your AI Backend"
+        subject = f"🚀 Market Update: {len(new_discoveries)} New Gems Found"
+        if whale_hits and high_conviction:
+            subject = f"🔥 URGENT: {len(whale_hits)} Whale-Backed High Sentiment Picks!"
+        elif whale_hits:
+            subject = f"🐋 Whale Alert: {len(whale_hits)} Major Accumulations Detected"
+        elif high_conviction:
+            subject = f"🌟 Opportunity: {len(high_conviction)} High Sentiment Stocks"
 
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = "AI Market Engine <" + sender + ">"
-    msg['To'] = receiver
+        # --- 2. Build the Email Body ---
+        body = "<h2>🎯 New Market Intelligence Discoveries</h2>"
+        body += "<p>The following stocks have passed our multi-engine filters:</p><br>"
 
-    try:
-        # Connect to Gmail and send
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-            server.login(sender, password)
-            server.sendmail(sender, receiver, msg.as_string())
-        print("✅ Email alert sent successfully!")
+        for stock in new_discoveries:
+            sentiment_color = "#28a745" if stock.get('sentiment_label') == "High Sentiment" else "#dc3545" if stock.get('sentiment_label') == "Low Sentiment" else "#6c757d"
+            
+            body += f"""
+            <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
+                <h3 style="margin-top: 0;">{stock['symbol']} - ₹{stock['price']}</h3>
+                <p><b>Sentiment:</b> <span style="color: {sentiment_color}; font-weight: bold;">{stock.get('sentiment_label', 'Neutral')} ({stock.get('sentiment_score', 0.0)})</span></p>
+                <p><b>Whale Status:</b> {stock.get('whale_alert', 'No recent block deals')}</p>
+                <p><b>Source:</b> {stock.get('status', 'System Pick')}</p>
+                <p><b>Metrics:</b> Growth: {stock.get('growth', 'N/A')} | ICR: {stock.get('icr', 'N/A')}</p>
+            </div>
+            """
+
+        # --- 3. SMTP Configuration ---
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = receiver_email
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'html'))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender_email, password)
+            server.send_message(msg)
+        
+        logger.info(f"📩 Email alert sent successfully: {subject}")
+
     except Exception as e:
-        print(f"❌ Failed to send email: {e}")
+        logger.error(f"❌ Failed to send email alert: {e}")
