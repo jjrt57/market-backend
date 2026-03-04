@@ -3,6 +3,10 @@ import pandas as pd
 import requests
 import io
 import time
+from utils import timer_benchmark
+
+@timer_benchmark
+def get_sentiment(symbol):
 
 def get_full_nse_list():
     url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
