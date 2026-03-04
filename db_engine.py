@@ -1,16 +1,27 @@
 import os
+import json
 from supabase import create_client, Client
 
 def save_to_cloud(picks):
     print("☁️ Connecting to Supabase Cloud Database...")
-    url = os.environ.get("SUPABASE_URL")
-    key = os.environ.get("SUPABASE_KEY")
     
-    if not url or not key:
-        print("⚠️ Supabase keys not found in environment. Skipping database upload.")
+    # Fetch the single secret package from GitHub
+    supabase_data_raw = os.environ.get("SUPABASE_DATA")
+    
+    if not supabase_data_raw:
+        print("⚠️ SUPABASE_DATA secret not found in environment. Skipping database upload.")
         return
 
     try:
+        # Open the JSON package to extract the keys
+        credentials = json.loads(supabase_data_raw)
+        url = credentials.get("SUPABASE_URL")
+        key = credentials.get("SUPABASE_KEY")
+        
+        if not url or not key:
+            print("⚠️ URL or KEY is missing inside the SUPABASE_DATA JSON. Skipping upload.")
+            return
+
         supabase: Client = create_client(url, key)
         
         # Loop through the new discoveries and insert them into your table
@@ -29,5 +40,8 @@ def save_to_cloud(picks):
             supabase.table("market_picks").insert(data).execute()
             
         print(f"✅ Successfully saved {len(picks)} high-potential gems to the cloud database!")
+        
+    except json.JSONDecodeError:
+        print("❌ Failed to parse SUPABASE_DATA. Make sure it is formatted as valid JSON.")
     except Exception as e:
         print(f"❌ Failed to save to database: {e}")
