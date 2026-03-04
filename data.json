@@ -1,6 +1,6 @@
 {
     "meta": {
-        "last_updated": "2026-03-04 14:58:07"
+        "last_updated": "2026-03-04 15:35:21"
     },
     "premium_value_picks": [
         {
@@ -350,6 +350,32 @@
     ],
     "market_intelligence": {
         "contracts": [],
-        "sector_alerts": []
+        "sector_alerts": [
+            {
+                "sector": "AUTO_TECH",
+                "headline": "Tata Elxsi Q4 net profit, revenue decline QoQ; firm declares dividend of Rs 70 per share",
+                "impact": "MEDIUM"
+            },
+            {
+                "sector": "AUTO_TECH",
+                "headline": "Hindustan Unilever Q4 Preview: Price cuts, slow demand, regional competition to hurt topline",
+                "impact": "MEDIUM"
+            },
+            {
+                "sector": "AUTO_TECH",
+                "headline": "LTIMindtree Q4 Preview: Lower pass-through revenue seen impacting growth marginally",
+                "impact": "MEDIUM"
+            },
+            {
+                "sector": "AUTO_TECH",
+                "headline": "Air India enters into codeshare pact with Japan#39;s All Nippon Airways",
+                "impact": "MEDIUM"
+            },
+            {
+                "sector": "AUTO_TECH",
+                "headline": "Razorpay announces #39;UPI Switch#39; in partnership with Airtel Payments Bank",
+                "impact": "MEDIUM"
+            }
+        ]
     }
 }
