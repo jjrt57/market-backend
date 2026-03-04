@@ -49,25 +49,19 @@ def save_to_cloud(picks):
         supabase: Client = create_client(url, key)
         
         for stock in picks:
+            # --- MAPPING DATA TO DATABASE COLUMNS ---
             data = {
                 "symbol": stock.get("symbol", "UNKNOWN"),
                 "price": stock.get("price", 0.0),
+                "pe": stock.get("pe", 0.0),                     # Added pe column mapping
+                "sector": stock.get("sector", "Miscellaneous"),  # Added sector column mapping
+                "industry": stock.get("industry", "N/A"),       # Added industry column mapping
+                "market_cap": stock.get("market_cap", 0),       # Added market_cap column mapping
                 "growth": stock.get("growth", "N/A"),
                 "icr": stock.get("icr", 0.0),
                 "volume_status": stock.get("volume_status", "Normal"),
                 "institutional_backing": stock.get("institutional_backing", "Retail"),
                 "whale_alert": stock.get("whale_alert", "None"),
                 "engine_source": stock.get("status", "System Pick"),
-                # --- NEW SENTIMENT FIELDS ---
                 "sentiment_score": stock.get("sentiment_score", 0.0),
-                "sentiment_label": stock.get("sentiment_label", "Neutral")
-            }
-            # Insert the row into the 'market_picks' table
-            supabase.table("market_picks").insert(data).execute()
-            
-        print(f"✅ Successfully saved {len(picks)} high-potential gems to the cloud database!")
-        
-    except json.JSONDecodeError:
-        print("❌ Failed to parse SUPABASE_DATA. Make sure it is formatted as valid JSON.")
-    except Exception as e:
-        print(f"❌ Failed to save to database: {e}")
+                "sentiment_label": stock.get("sentiment_label",
