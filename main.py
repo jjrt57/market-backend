@@ -6,6 +6,7 @@ import datetime
 import notifier
 import db_engine
 import logging
+import sentiment_engine  # NEW IMPORT
 
 # --- PRO LOGGING SETUP ---
 logging.basicConfig(
@@ -31,14 +32,24 @@ def orchestrate():
     whale_symbols = insider_logic.get_whale_buys()
 
     all_current_picks = gems + budget_gems
+    
+    # --- 3. Check for NEW Discoveries and Analyze Sentiment ---
+    new_discoveries = []
+    
     for stock in all_current_picks:
         clean_symbol = stock['symbol'].replace(".NS", "")
+        
+        # Apply Whale Tags to all current picks
         if clean_symbol in whale_symbols:
             stock['whale_alert'] = "🚨 MASSIVE BLOCK DEAL DETECTED TODAY"
+        
+        # Only perform sentiment analysis on NEW stocks to save time and API calls
+        if stock['symbol'] not in old_symbols:
+            logger.info(f"🧠 Analyzing sentiment for new discovery: {clean_symbol}")
+            stock['sentiment_score'] = sentiment_engine.get_sentiment(stock['symbol'])
+            new_discoveries.append(stock)
 
-    # --- 3. Check for NEW Discoveries ---
-    new_discoveries = [stock for stock in all_current_picks if stock['symbol'] not in old_symbols]
-    
+    # --- 4. Trigger Alerts and Save ---
     if len(new_discoveries) > 0:
         logger.info(f"🔔 Found {len(new_discoveries)} new stocks! Triggering alerts...")
         notifier.send_alert(new_discoveries)
