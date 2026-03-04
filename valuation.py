@@ -5,9 +5,6 @@ import io
 import time
 from utils import timer_benchmark
 
-@timer_benchmark
-def get_sentiment(symbol):
-
 def get_full_nse_list():
     url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)'}
@@ -19,10 +16,11 @@ def get_full_nse_list():
     except:
         return ["RELIANCE.NS", "TCS.NS", "SBIN.NS"]
 
+@timer_benchmark
 def get_undervalued_gems():
     full_market = get_full_nse_list()
     picks = []
-    # Scanning top 100 for speed, you can increase this later
+    # Scanning top 100 for speed
     for ticker in full_market[:100]: 
         try:
             stock = yf.Ticker(ticker)
@@ -36,7 +34,9 @@ def get_undervalued_gems():
                     "symbol": ticker.replace(".NS", ""),
                     "price": info.get('currentPrice'),
                     "pe": round(pe, 1),
-                    "sector": info.get('sector', 'General')
+                    "sector": info.get('sector', 'General'),
+                    "status": "Undervalued Gem"
                 })
-        except: continue
+        except: 
+            continue
     return picks
