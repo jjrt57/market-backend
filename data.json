@@ -1,6 +1,6 @@
 {
     "meta": {
-        "last_updated": "2026-03-04 15:35:21"
+        "last_updated": "2026-03-04 16:29:51"
     },
     "premium_value_picks": [
         {
@@ -273,7 +273,8 @@
             "growth": "49%",
             "volume_status": "\ud83d\udcc8 High Volume (2.3x Avg)",
             "institutional_backing": "\ud83d\udc54 HIGH CONVICTION",
-            "status": "\ud83d\udd25 PRO APPROVED"
+            "status": "\ud83d\udd25 PRO APPROVED",
+            "whale_alert": "\ud83d\udea8 MASSIVE BLOCK DEAL DETECTED TODAY"
         },
         {
             "symbol": "ASHOKLEY",
