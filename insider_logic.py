@@ -11,6 +11,21 @@ def get_whale_buys():
         response = requests.get(url, headers=headers, timeout=10)
         df = pd.read_csv(io.StringIO(response.text))
         
+        # --- THE FIX ---
+        # 1. Strip all invisible spaces from the column names
+        df.columns = df.columns.str.strip()
+        
+        # 2. Force the column to be named 'Quantity' just in case NSE renamed it
+        if 'Quantity Traded' in df.columns:
+            df.rename(columns={'Quantity Traded': 'Quantity'}, inplace=True)
+        elif 'Qty' in df.columns:
+            df.rename(columns={'Qty': 'Quantity'}, inplace=True)
+            
+        # 3. Clean up the 'Buy/Sell' and 'Symbol' columns just to be safe
+        if 'Buy / Sell' in df.columns:
+            df.rename(columns={'Buy / Sell': 'Buy/Sell'}, inplace=True)
+        # ---------------
+        
         # Filter for massive accumulation: Over 500,000 shares bought in a single trade
         massive_buys = df[(df['Quantity'] > 500000) & (df['Buy/Sell'] == 'BUY')]
         
