@@ -31,7 +31,6 @@ def get_existing_symbols():
 def save_to_cloud(picks):
     print("☁️ Connecting to Supabase Cloud Database...")
     
-    # Fetch the single secret package from GitHub
     supabase_data_raw = os.environ.get("SUPABASE_DATA")
     
     if not supabase_data_raw:
@@ -39,7 +38,6 @@ def save_to_cloud(picks):
         return
 
     try:
-        # Open the JSON package to extract the keys
         credentials = json.loads(supabase_data_raw)
         url = credentials.get("SUPABASE_URL")
         key = credentials.get("SUPABASE_KEY")
@@ -50,7 +48,6 @@ def save_to_cloud(picks):
 
         supabase: Client = create_client(url, key)
         
-        # Loop through the new discoveries and insert them into your table
         for stock in picks:
             data = {
                 "symbol": stock.get("symbol", "UNKNOWN"),
@@ -60,7 +57,10 @@ def save_to_cloud(picks):
                 "volume_status": stock.get("volume_status", "Normal"),
                 "institutional_backing": stock.get("institutional_backing", "Retail"),
                 "whale_alert": stock.get("whale_alert", "None"),
-                "engine_source": stock.get("status", "System Pick")
+                "engine_source": stock.get("status", "System Pick"),
+                # --- NEW SENTIMENT FIELDS ---
+                "sentiment_score": stock.get("sentiment_score", 0.0),
+                "sentiment_label": stock.get("sentiment_label", "Neutral")
             }
             # Insert the row into the 'market_picks' table
             supabase.table("market_picks").insert(data).execute()
