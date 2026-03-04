@@ -8,6 +8,11 @@ import db_engine
 import logging
 import sentiment_engine  # NEW IMPORT
 
+from utils import timer_benchmark
+
+@timer_benchmark
+def get_sentiment(symbol):
+
 # --- PRO LOGGING SETUP ---
 logging.basicConfig(
     level=logging.INFO,
