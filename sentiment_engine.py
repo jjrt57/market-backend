@@ -2,6 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 from textblob import TextBlob
 import logging
+from utils import timer_benchmark
+
+@timer_benchmark
+def get_sentiment(symbol):
 
 logger = logging.getLogger(__name__)
 
