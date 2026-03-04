@@ -1,39 +1,41 @@
 {
-    "last_updated": "2026-03-04 06:04:43",
-    "ai_picks": [
+    "meta": {
+        "last_updated": "2026-03-04 06:22:46"
+    },
+    "premium_value_picks": [
         {
             "symbol": "360ONE",
-            "price": 1052.0,
-            "pe": 29.4,
+            "price": 1053.6,
+            "pe": 29.5,
             "sector": "Financial Services"
         },
         {
             "symbol": "5PAISA",
-            "price": 302.7,
+            "price": 302.15,
             "pe": 19.5,
             "sector": "Financial Services"
         },
         {
             "symbol": "AADHARHFC",
-            "price": 441.9,
+            "price": 441.35,
             "pe": 14.3,
             "sector": "Financial Services"
         },
         {
             "symbol": "AARTIDRUGS",
-            "price": 358.1,
+            "price": 358.8,
             "pe": 14.5,
             "sector": "Healthcare"
         },
         {
             "symbol": "AARTIIND",
-            "price": 419.0,
-            "pe": 26.2,
+            "price": 420.6,
+            "pe": 26.3,
             "sector": "Basic Materials"
         },
         {
             "symbol": "AAVAS",
-            "price": 1230.0,
+            "price": 1230.4,
             "pe": 12.3,
             "sector": "Financial Services"
         },
@@ -45,103 +47,103 @@
         },
         {
             "symbol": "ABCAPITAL",
-            "price": 321.65,
+            "price": 322.35,
             "pe": 16.0,
             "sector": "Financial Services"
         },
         {
             "symbol": "ABFRL",
-            "price": 63.67,
+            "price": 63.74,
             "pe": 10.3,
             "sector": "Consumer Cyclical"
         },
         {
             "symbol": "ABREL",
-            "price": 1220.4,
+            "price": 1219.7,
             "pe": 9.8,
             "sector": "Real Estate"
         },
         {
             "symbol": "ABSLAMC",
-            "price": 846.3,
+            "price": 846.25,
             "pe": 20.8,
             "sector": "Financial Services"
         },
         {
             "symbol": "ACC",
-            "price": 1515.0,
+            "price": 1518.6,
             "pe": 12.7,
             "sector": "Basic Materials"
         },
         {
             "symbol": "ACCELYA",
-            "price": 1160.0,
-            "pe": 18.5,
+            "price": 1162.6,
+            "pe": 18.6,
             "sector": "Technology"
         },
         {
             "symbol": "ACE",
-            "price": 856.55,
+            "price": 857.0,
             "pe": 22.1,
             "sector": "Industrials"
         },
         {
             "symbol": "ACI",
-            "price": 532.25,
+            "price": 533.5,
             "pe": 20.5,
             "sector": "Basic Materials"
         },
         {
             "symbol": "ACMESOLAR",
-            "price": 222.9,
-            "pe": 21.6,
+            "price": 223.27,
+            "pe": 21.7,
             "sector": "Utilities"
         },
         {
             "symbol": "ADANIPORTS",
-            "price": 1429.2,
+            "price": 1429.4,
             "pe": 20.4,
             "sector": "Industrials"
         },
         {
             "symbol": "ADANIPOWER",
-            "price": 137.4,
-            "pe": 20.2,
+            "price": 136.96,
+            "pe": 20.1,
             "sector": "Utilities"
         },
         {
             "symbol": "ADOR",
-            "price": 1009.5,
+            "price": 1008.1,
             "pe": 14.9,
             "sector": "Industrials"
         },
         {
             "symbol": "ADSL",
-            "price": 109.32,
+            "price": 109.51,
             "pe": 8.9,
             "sector": "Technology"
         },
         {
             "symbol": "ADVENZYMES",
-            "price": 281.5,
-            "pe": 18.2,
+            "price": 279.55,
+            "pe": 18.1,
             "sector": "Basic Materials"
         },
         {
             "symbol": "AEGISLOG",
-            "price": 658.5,
+            "price": 658.65,
             "pe": 26.1,
             "sector": "Energy"
         },
         {
             "symbol": "AFCONS",
-            "price": 274.55,
+            "price": 273.7,
             "pe": 16.6,
             "sector": "Industrials"
         },
         {
             "symbol": "AGI",
-            "price": 522.8,
+            "price": 524.4,
             "pe": 8.2,
             "sector": "Consumer Cyclical"
         },
@@ -153,55 +155,82 @@
         },
         {
             "symbol": "AHLUCONT",
-            "price": 720.05,
+            "price": 720.0,
             "pe": 14.8,
             "sector": "Industrials"
         },
         {
             "symbol": "AIAENG",
-            "price": 3650.0,
-            "pe": 27.4,
+            "price": 3657.3,
+            "pe": 27.5,
             "sector": "Industrials"
         },
         {
             "symbol": "AJANTPHARM",
-            "price": 2899.8,
-            "pe": 29.2,
+            "price": 2919.6,
+            "pe": 29.4,
             "sector": "Healthcare"
         },
         {
             "symbol": "AJAXENGG",
-            "price": 476.45,
+            "price": 476.7,
             "pe": 18.8,
             "sector": "Industrials"
         },
         {
             "symbol": "AJMERA",
-            "price": 125.95,
+            "price": 126.53,
             "pe": 5.2,
             "sector": "Real Estate"
         },
         {
             "symbol": "AKSHOPTFBR",
-            "price": 4.48,
+            "price": 4.43,
             "pe": 1.3,
             "sector": "Technology"
         },
         {
             "symbol": "AKUMS",
-            "price": 467.0,
-            "pe": 18.9,
+            "price": 468.9,
+            "pe": 19.0,
             "sector": "Healthcare"
         },
         {
             "symbol": "AKZOINDIA",
-            "price": 2847.0,
-            "pe": 27.0,
+            "price": 2851.7,
+            "pe": 27.1,
             "sector": "Basic Materials"
         }
     ],
+    "high_potential_budget_under_500": [],
     "market_intelligence": {
         "contracts": [],
-        "sector_alerts": []
+        "sector_alerts": [
+            {
+                "sector": "AUTO_TECH",
+                "headline": "Tata Elxsi Q4 net profit, revenue decline QoQ; firm declares dividend of Rs 70 per share",
+                "impact": "MEDIUM"
+            },
+            {
+                "sector": "AUTO_TECH",
+                "headline": "Hindustan Unilever Q4 Preview: Price cuts, slow demand, regional competition to hurt topline",
+                "impact": "MEDIUM"
+            },
+            {
+                "sector": "AUTO_TECH",
+                "headline": "LTIMindtree Q4 Preview: Lower pass-through revenue seen impacting growth marginally",
+                "impact": "MEDIUM"
+            },
+            {
+                "sector": "AUTO_TECH",
+                "headline": "Air India enters into codeshare pact with Japan#39;s All Nippon Airways",
+                "impact": "MEDIUM"
+            },
+            {
+                "sector": "AUTO_TECH",
+                "headline": "Razorpay announces #39;UPI Switch#39; in partnership with Airtel Payments Bank",
+                "impact": "MEDIUM"
+            }
+        ]
     }
 }
