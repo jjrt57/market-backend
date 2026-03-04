@@ -6,7 +6,7 @@ import datetime
 import notifier
 import db_engine
 import logging
-import sentiment_engine  # This is where get_sentiment lives
+import sentiment_engine
 from utils import timer_benchmark
 
 # --- PRO LOGGING SETUP ---
@@ -17,7 +17,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# We apply the benchmark to the main orchestration function
 @timer_benchmark
 def orchestrate():
     logger.info("🚀 MULTI-ENGINE SCRIPT STARTING...")
@@ -46,11 +45,15 @@ def orchestrate():
         if clean_symbol in whale_symbols:
             stock['whale_alert'] = "🚨 MASSIVE BLOCK DEAL DETECTED TODAY"
         
-        # Only perform sentiment analysis on NEW stocks to save time
+        # Only perform sentiment analysis on NEW stocks
         if stock['symbol'] not in old_symbols:
             logger.info(f"🧠 Analyzing sentiment for new discovery: {clean_symbol}")
-            # This calls the function in your other file
-            stock['sentiment_score'] = sentiment_engine.get_sentiment(stock['symbol'])
+            
+            # --- UPDATED: Receive both score and label ---
+            score, label = sentiment_engine.get_sentiment(stock['symbol'])
+            
+            stock['sentiment_score'] = score
+            stock['sentiment_label'] = label
             new_discoveries.append(stock)
 
     # --- 4. Trigger Alerts and Save ---
