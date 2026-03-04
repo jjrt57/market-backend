@@ -27,14 +27,17 @@ def get_undervalued_gems():
             if full_market.index(ticker) % 5 == 0: time.sleep(1) # Rate limit
             
             info = stock.info
-            pe = info.get('forwardPE', 100)
+            # Use forward PE, or trailing PE if forward isn't available
+            pe = info.get('forwardPE') or info.get('trailingPE') or 100
             
-            if pe < 30: # Value filter
+            if pe < 30: 
                 picks.append({
                     "symbol": ticker.replace(".NS", ""),
                     "price": info.get('currentPrice'),
                     "pe": round(pe, 1),
-                    "sector": info.get('sector', 'General'),
+                    "sector": info.get('sector', 'Miscellaneous'), #
+                    "industry": info.get('industry', 'N/A'),       #
+                    "market_cap": info.get('marketCap', 0),        # For future bubble charts
                     "status": "Undervalued Gem"
                 })
         except: 
