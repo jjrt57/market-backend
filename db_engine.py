@@ -2,6 +2,32 @@ import os
 import json
 from supabase import create_client, Client
 
+def get_existing_symbols():
+    """Fetches a list of all stock symbols already saved in Supabase memory."""
+    print("🔎 Checking database for existing stock memory...")
+    
+    supabase_data_raw = os.environ.get("SUPABASE_DATA")
+    if not supabase_data_raw:
+        print("⚠️ SUPABASE_DATA not found. Bot will have no memory of past picks.")
+        return set()
+
+    try:
+        credentials = json.loads(supabase_data_raw)
+        url = credentials.get("SUPABASE_URL")
+        key = credentials.get("SUPABASE_KEY")
+        
+        supabase: Client = create_client(url, key)
+
+        # Fetch only the 'symbol' column from your table
+        response = supabase.table("market_picks").select("symbol").execute()
+        
+        # Return as a set for lightning-fast comparison in main.py
+        return {row['symbol'] for row in response.data}
+    
+    except Exception as e:
+        print(f"⚠️ Could not fetch existing symbols from cloud: {e}")
+        return set()
+
 def save_to_cloud(picks):
     print("☁️ Connecting to Supabase Cloud Database...")
     
@@ -36,7 +62,7 @@ def save_to_cloud(picks):
                 "whale_alert": stock.get("whale_alert", "None"),
                 "engine_source": stock.get("status", "System Pick")
             }
-            # Insert the row into the 'market_picks' table we created
+            # Insert the row into the 'market_picks' table
             supabase.table("market_picks").insert(data).execute()
             
         print(f"✅ Successfully saved {len(picks)} high-potential gems to the cloud database!")
