@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def send_alert(new_discoveries):
-    """Sends a professional email alert for new stock discoveries."""
+    """Sends an email ONLY if high-conviction 'Elite' stocks (Score 80+) are found."""
     email_data_raw = os.environ.get("EMAIL_DATA")
     if not email_data_raw:
         logger.warning("⚠️ EMAIL_DATA secret not found. Skipping email.")
@@ -20,36 +20,49 @@ def send_alert(new_discoveries):
         receiver_email = creds.get("RECEIVER_EMAIL")
         password = creds.get("PASSWORD")
 
-        # --- 1. Dynamic Subject Line Logic ---
-        high_conviction = [s for s in new_discoveries if s.get('sentiment_label') == "High Sentiment"]
-        whale_hits = [s for s in new_discoveries if s.get('whale_alert') != "None"]
+        # --- 1. Elite Filter (Power Score Calculation) ---
+        elite_picks = []
+        for s in new_discoveries:
+            score = 0
+            if s.get('sentiment_label') == "High Sentiment": score += 40
+            if s.get('whale_alert') != "None" and "🚨" in s.get('whale_alert', ''): score += 40
+            if s.get('status') == "Undervalued Gem": score += 20
+            
+            if score >= 80:
+                s['power_score'] = score
+                elite_picks.append(s)
+
+        # Exit early if no top-tier picks are found
+        if not elite_picks:
+            logger.info("ℹ️ No 'Elite' (80+ score) stocks found. Skipping email notification.")
+            return
+
+        # --- 2. Dynamic Subject Line for Elite Picks ---
+        whale_hits = [s for s in elite_picks if "🚨" in s.get('whale_alert', '')]
         
-        subject = f"🚀 Market Update: {len(new_discoveries)} New Gems Found"
-        if whale_hits and high_conviction:
-            subject = f"🔥 URGENT: {len(whale_hits)} Whale-Backed High Sentiment Picks!"
-        elif whale_hits:
-            subject = f"🐋 Whale Alert: {len(whale_hits)} Major Accumulations Detected"
-        elif high_conviction:
-            subject = f"🌟 Opportunity: {len(high_conviction)} High Sentiment Stocks"
+        if len(whale_hits) > 0:
+            subject = f"🔥 URGENT: {len(elite_picks)} Elite Whale-Backed Picks Found!"
+        else:
+            subject = f"🌟 Opportunity: {len(elite_picks)} High Sentiment Elite Stocks"
 
-        # --- 2. Build the Email Body ---
-        body = "<h2>🎯 New Market Intelligence Discoveries</h2>"
-        body += "<p>The following stocks have passed our multi-engine filters:</p><br>"
+        # --- 3. Build the Email Body ---
+        body = f"<h2>🎯 Elite Market Intelligence Discovery ({len(elite_picks)})</h2>"
+        body += "<p>The following stocks have hit a Power Score of 80+ across our engines:</p><br>"
 
-        for stock in new_discoveries:
-            sentiment_color = "#28a745" if stock.get('sentiment_label') == "High Sentiment" else "#dc3545" if stock.get('sentiment_label') == "Low Sentiment" else "#6c757d"
+        for stock in elite_picks:
+            sentiment_color = "#28a745" # High Sentiment is always green here
             
             body += f"""
-            <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
-                <h3 style="margin-top: 0;">{stock['symbol']} - ₹{stock['price']}</h3>
-                <p><b>Sentiment:</b> <span style="color: {sentiment_color}; font-weight: bold;">{stock.get('sentiment_label', 'Neutral')} ({stock.get('sentiment_score', 0.0)})</span></p>
-                <p><b>Whale Status:</b> {stock.get('whale_alert', 'No recent block deals')}</p>
-                <p><b>Source:</b> {stock.get('status', 'System Pick')}</p>
-                <p><b>Metrics:</b> Growth: {stock.get('growth', 'N/A')} | ICR: {stock.get('icr', 'N/A')}</p>
+            <div style="border: 2px solid #28a745; padding: 15px; margin-bottom: 10px; border-radius: 8px; background-color: #f8fff9;">
+                <h3 style="margin-top: 0;">{stock['symbol']} - ₹{stock['price']} (Score: {stock['power_score']})</h3>
+                <p><b>Sentiment:</b> <span style="color: {sentiment_color}; font-weight: bold;">{stock.get('sentiment_label')} ({stock.get('sentiment_score')})</span></p>
+                <p><b>Whale Status:</b> {stock.get('whale_alert')}</p>
+                <p><b>Strategy:</b> {stock.get('status')}</p>
+                <p><b>Metrics:</b> Growth: {stock.get('growth')} | ICR: {stock.get('icr')}</p>
             </div>
             """
 
-        # --- 3. SMTP Configuration ---
+        # --- 4. SMTP Configuration ---
         msg = MIMEMultipart()
         msg['From'] = sender_email
         msg['To'] = receiver_email
@@ -59,8 +72,3 @@ def send_alert(new_discoveries):
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(sender_email, password)
             server.send_message(msg)
-        
-        logger.info(f"📩 Email alert sent successfully: {subject}")
-
-    except Exception as e:
-        logger.error(f"❌ Failed to send email alert: {e}")
