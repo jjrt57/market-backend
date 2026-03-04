@@ -72,3 +72,8 @@ def send_alert(new_discoveries):
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(sender_email, password)
             server.send_message(msg)
+        
+        logger.info(f"📩 Elite Email alert sent successfully: {subject}")
+
+    except Exception as e:
+        logger.error(f"❌ Failed to send elite email alert: {e}")
