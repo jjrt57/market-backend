@@ -2,15 +2,15 @@
 name: Market Hunter Bot Automation
 
 on:
+  push:
+    branches: [ main ] # <--- ADD THIS TEMPORARILY
   schedule:
-    # 9:00 AM IST is 3:30 AM UTC
     - cron: '30 3 * * *'
-  workflow_dispatch: # Allows you to run it manually for testing
+  workflow_dispatch: 
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -27,7 +27,6 @@ jobs:
 
       - name: Run Hunter Bot
         env:
-          # You must add these to your GitHub Repo Settings > Secrets and Variables > Actions
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python hunter.py
