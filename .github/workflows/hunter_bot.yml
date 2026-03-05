@@ -1,32 +1,11 @@
-# Manual Trigger Refresh
-name: Market Hunter Bot Automation
+name: Diagnostic Test Run
 
 on:
-  push:
-    branches: [ main ] # <--- ADD THIS TEMPORARILY
-  schedule:
-    - cron: '30 3 * * *'
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-
-      - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pandas yfinance supabase nsepython requests
-
-      - name: Run Hunter Bot
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        run: python hunter.py
+      - name: Hello World Diagnostic
+        run: echo "The GitHub Actions engine is working perfectly."
