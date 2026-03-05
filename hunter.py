@@ -1,58 +1,64 @@
 import os
 import time
+import pandas as pd
 import yfinance as yf
 from supabase import create_client
 from nsepython import nse_eq
 
-# --- Initialize Supabase from GitHub Secrets ---
-url = os.environ.get("SUPABASE_URL")
-key = os.environ.get("SUPABASE_KEY")
-supabase = create_client(url, key)
+# --- 1. Load Secrets ---
+# These are injected by the 'env' section of your hunter.yml
+URL = os.environ.get("SUPABASE_URL")
+KEY = os.environ.get("SUPABASE_KEY")
+
+if not URL or not KEY:
+    print("❌ Error: SUPABASE_URL or SUPABASE_KEY not found in environment.")
+    exit(1)
+
+supabase = create_client(URL, KEY)
 
 def fetch_forensic_data(symbol):
-    """Fetches NSE-specific delivery data and pledging status."""
     try:
         # NSE India delivery data
         nse_data = nse_eq(symbol)
         delivery_pct = nse_data.get('securityWiseDP', {}).get('deliveryToTradedQuantity', 0)
         
+        # Yahoo Finance for Pledging
         ticker = yf.Ticker(f"{symbol}.NS")
         info = ticker.info
-        is_pledged = info.get('pledgedByPromoter', 0) > 0 # Forensic check
         
         return {
             "delivery_percentage": float(delivery_pct),
-            "is_pledged": is_pledged,
+            "is_pledged": info.get('pledgedByPromoter', 0) > 0,
             "price": info.get('currentPrice', 0),
             "pe": info.get('forwardPE', 0),
             "sector": info.get('sector', 'Unknown')
         }
-    except:
-        return {"delivery_percentage": 0, "is_pledged": False, "price": 0, "pe": 0, "sector": "N/A"}
+    except Exception as e:
+        print(f"⚠️ Skipping {symbol}: {e}")
+        return None
 
 def run_daily_hunt():
-    # You can also fetch the Nifty 50 symbols list here to scale beyond 4 stocks
-    watchlist = ["RELIANCE", "TCS", "HDFCBANK", "BEL", "ADANIENT", "SBIN"] 
+    watchlist = ["RELIANCE", "TCS", "HDFCBANK", "BEL", "ADANIENT", "SBIN"]
+    print(f"🚀 Starting Hunt for {len(watchlist)} stocks...")
     
     for symbol in watchlist:
-        # Get Forensic and Momentum data
         data = fetch_forensic_data(symbol)
+        if data:
+            payload = {
+                "symbol": symbol,
+                "price": data['price'],
+                "pe": data['pe'],
+                "sector": data['sector'],
+                "delivery_percentage": data['delivery_percentage'],
+                "is_pledged": data['is_pledged'],
+                "sentiment_label": "High Sentiment" 
+            }
+            
+            # Push to Supabase
+            supabase.table("market_picks").insert(payload).execute()
+            print(f"✅ Logged {symbol} | Delivery: {data['delivery_percentage']}%")
         
-        payload = {
-            "symbol": symbol,
-            "price": data['price'],
-            "pe": data['pe'],
-            "sector": data['sector'],
-            "delivery_percentage": data['delivery_percentage'],
-            "is_pledged": data['is_pledged'],
-            "sentiment_label": "High Sentiment" # Replace with your sentiment logic
-        }
-        
-        # Push to Supabase
-        supabase.table("market_picks").insert(payload).execute()
-        
-        # Respect NSE rate limits to avoid IP blocks
-        time.sleep(1)
+        time.sleep(2) # Extra buffer for GitHub IP reliability
 
 if __name__ == "__main__":
     run_daily_hunt()
