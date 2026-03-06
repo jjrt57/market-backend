@@ -1,17 +1,25 @@
 import os
 import time
+import json
 import pandas as pd
 import yfinance as yf
 from supabase import create_client
 from nsepython import nse_eq
 
-# --- 1. Load Secrets ---
-# These are injected by the 'env' section of your hunter.yml
-URL = os.environ.get("SUPABASE_URL")
-KEY = os.environ.get("SUPABASE_KEY")
+# --- 1. Load Secrets from JSON ---
+supabase_data_raw = os.environ.get("SUPABASE_DATA")
 
-if not URL or not KEY:
-    print("❌ Error: SUPABASE_URL or SUPABASE_KEY not found in environment.")
+if not supabase_data_raw:
+    print("❌ Error: SUPABASE_DATA not found in environment.")
+    exit(1)
+
+# Unpack the JSON string just like your Streamlit app does
+try:
+    creds = json.loads(supabase_data_raw)
+    URL = creds.get("SUPABASE_URL")
+    KEY = creds.get("SUPABASE_KEY")
+except Exception as e:
+    print(f"❌ JSON Parsing Error: Make sure your secret is a valid JSON format. {e}")
     exit(1)
 
 supabase = create_client(URL, KEY)
