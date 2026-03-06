@@ -27,6 +27,6 @@ jobs:
 
       - name: Run Hunter Bot
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          # Pulls your single JSON secret block
+          SUPABASE_DATA: ${{ secrets.SUPABASE_DATA }}
         run: python hunter.py
