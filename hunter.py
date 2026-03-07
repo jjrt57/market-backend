@@ -13,7 +13,7 @@ if not supabase_data_raw:
     print("❌ Error: SUPABASE_DATA not found in environment.")
     exit(1)
 
-# Unpack the JSON string just like your Streamlit app does
+# Unpack the JSON string
 try:
     creds = json.loads(supabase_data_raw)
     URL = creds.get("SUPABASE_URL")
@@ -23,6 +23,17 @@ except Exception as e:
     exit(1)
 
 supabase = create_client(URL, KEY)
+
+# --- 2. Custom Sector Overrides ---
+# Add any stock symbol here to forcefully change its sector classification
+CUSTOM_SECTORS = {
+    "RELIANCE": "Conglomerate",
+    "ADANIENT": "Conglomerate",
+    "BEL": "Defense & Aerospace",
+    "TCS": "Information Technology",
+    "HDFCBANK": "Financial Services",
+    "SBIN": "Public Sector Bank"
+}
 
 def fetch_forensic_data(symbol):
     try:
@@ -42,31 +53,3 @@ def fetch_forensic_data(symbol):
             "sector": info.get('sector', 'Unknown')
         }
     except Exception as e:
-        print(f"⚠️ Skipping {symbol}: {e}")
-        return None
-
-def run_daily_hunt():
-    watchlist = ["RELIANCE", "TCS", "HDFCBANK", "BEL", "ADANIENT", "SBIN"]
-    print(f"🚀 Starting Hunt for {len(watchlist)} stocks...")
-    
-    for symbol in watchlist:
-        data = fetch_forensic_data(symbol)
-        if data:
-            payload = {
-                "symbol": symbol,
-                "price": data['price'],
-                "pe": data['pe'],
-                "sector": data['sector'],
-                "delivery_percentage": data['delivery_percentage'],
-                "is_pledged": data['is_pledged'],
-                "sentiment_label": "High Sentiment" 
-            }
-            
-            # Push to Supabase
-            supabase.table("market_picks").insert(payload).execute()
-            print(f"✅ Logged {symbol} | Delivery: {data['delivery_percentage']}%")
-        
-        time.sleep(2) # Extra buffer for GitHub IP reliability
-
-if __name__ == "__main__":
-    run_daily_hunt()
