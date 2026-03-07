@@ -39,7 +39,7 @@ def fetch_intraday_index(ticker_symbol, index_name):
     try:
         ticker = yf.Ticker(ticker_symbol)
         # Fetch today's data in 5-minute intervals
-        df = ticker.history(period="6M", interval="5m")
+        df = ticker.history(period="6mo", interval="1d")
         
         payloads = []
         for timestamp, row in df.iterrows():
