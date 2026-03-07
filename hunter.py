@@ -35,24 +35,25 @@ CUSTOM_SECTORS = {
 
 # --- 3. Fetch Intraday Index Data (5-minute intervals) ---
 def fetch_intraday_index(ticker_symbol, index_name):
-    print(f"📊 Fetching 6-months intraday data for {indexName}...")
+    # FIX: Using the correct 'index_name' variable!
+    print(f"📊 Fetching 6-month historical data for {index_name}...")
     try:
         ticker = yf.Ticker(ticker_symbol)
-        # Fetch today's data in 5-minute intervals
+        # Pulling 6 months of daily data for the new UI
         df = ticker.history(period="6mo", interval="1d")
         
         payloads = []
         for timestamp, row in df.iterrows():
             payloads.append({
                 "index_name": index_name,
-                "timestamp": timestamp.isoformat(), # Standardized time format for Swift
+                "timestamp": timestamp.isoformat(), 
                 "price": round(row['Close'], 2)
             })
         return payloads
     except Exception as e:
-        print(f"⚠️ Error fetching {indexName}: {e}")
+        # FIX: Using the correct 'index_name' variable here too!
+        print(f"⚠️ Error fetching {index_name}: {e}")
         return []
-
 # --- 4. Fetch Individual Stock Data ---
 def fetch_forensic_data(symbol):
     try:
