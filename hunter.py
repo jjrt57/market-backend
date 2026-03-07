@@ -35,11 +35,11 @@ CUSTOM_SECTORS = {
 
 # --- 3. Fetch Intraday Index Data (5-minute intervals) ---
 def fetch_intraday_index(ticker_symbol, index_name):
-    print(f"📊 Fetching 5-minute intraday data for {indexName}...")
+    print(f"📊 Fetching 6-months intraday data for {indexName}...")
     try:
         ticker = yf.Ticker(ticker_symbol)
         # Fetch today's data in 5-minute intervals
-        df = ticker.history(period="1d", interval="5m")
+        df = ticker.history(period="6M", interval="5m")
         
         payloads = []
         for timestamp, row in df.iterrows():
