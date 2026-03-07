@@ -25,13 +25,12 @@ except Exception as e:
 
 supabase = create_client(URL, KEY)
 
-# --- 2. Fetch Macro Index History (6-Months) ---
+# --- 2. Fetch Macro Index History ---
 def fetch_index_history(ticker_symbol, index_name):
     print(f"📊 Fetching 6-month historical data for {index_name}...")
     try:
         ticker = yf.Ticker(ticker_symbol)
         df = ticker.history(period="6mo", interval="1d")
-        
         payloads = []
         for timestamp, row in df.iterrows():
             payloads.append({
@@ -44,95 +43,101 @@ def fetch_index_history(ticker_symbol, index_name):
         print(f"⚠️ Error fetching {index_name}: {e}")
         return []
 
-# --- 3. Dynamic Sector Sync (NSE Official Classification) ---
+# --- 3. Dynamic Sector Sync (Nifty 500 Classification) ---
 def sync_sectors_dynamic():
-    print("🌐 Fetching official NSE Industry Classification...")
-    # Nifty 500 contains the most comprehensive list of active sectors in India
+    print("🌐 Syncing official NSE sectors...")
     url = "https://archives.nseindia.com/content/indices/ind_nifty500list.csv"
     headers = {'User-Agent': 'Mozilla/5.0'}
-    
     try:
         response = requests.get(url, headers=headers)
         df = pd.read_csv(io.StringIO(response.text))
-        
-        # Extract unique industries (NSE uses 'Industry' for Sector)
         unique_sectors = sorted(df['Industry'].unique().tolist())
-        
-        # Format for Supabase
         sector_payloads = [{"name": s} for s in unique_sectors]
-        
-        # Upsert into market_sectors table
-        if sector_payloads:
-            supabase.table("market_sectors").upsert(sector_payloads).execute()
-            print(f"✅ Successfully synced {len(unique_sectors)} official NSE sectors.")
-            
+        supabase.table("market_sectors").upsert(sector_payloads).execute()
+        print(f"✅ Synced {len(unique_sectors)} official NSE sectors.")
     except Exception as e:
-        print(f"🛑 Error syncing sectors: {e}")
+        print(f"🛑 Sector Sync Error: {e}")
 
-# --- 4. Dynamic NIFTY 50 Sync ---
+# --- 4. Live News Scraper (NSE Corporate Announcements) ---
+def sync_news_dynamic():
+    print("📰 Fetching live NSE announcements...")
+    url = "https://www.nseindia.com/api/corporate-announcements?index=equities"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json, text/plain, */*',
+        'Referer': 'https://www.nseindia.com/companies-listing/corporate-filings-announcements'
+    }
+    try:
+        session = requests.Session()
+        session.get("https://www.nseindia.com", headers=headers) # Set cookies
+        response = session.get(url, headers=headers)
+        raw_news = response.json()
+        
+        news_payloads = []
+        for item in raw_news[:15]: # Capture top 15
+            news_payloads.append({
+                "headline": item.get('desc', 'N/A'),
+                "source": item.get('symbol', 'NSE'),
+                "time": item.get('att_date', datetime.now().strftime("%d-%b-%Y")),
+                "external_url": "https://www.nseindia.com" + item.get('attachment', '')
+            })
+        
+        if news_payloads:
+            # Matches by 'headline' as Primary Key to avoid duplicates
+            supabase.table("market_news").upsert(news_payloads).execute()
+            print(f"✅ Logged {len(news_payloads)} corporate news items.")
+    except Exception as e:
+        print(f"🛑 News Sync Error: {e}")
+
+# --- 5. NIFTY 50 Stock Prices Sync ---
 def sync_nifty_50_dynamic():
-    print("🌐 Fetching official NIFTY 50 constituent list from NSE...")
+    print("🌐 Syncing NIFTY 50 live data...")
     url = "https://archives.nseindia.com/content/indices/ind_nifty50list.csv"
     headers = {'User-Agent': 'Mozilla/5.0'}
-    
     try:
         response = requests.get(url, headers=headers)
         df_list = pd.read_csv(io.StringIO(response.text))
-        raw_symbols = df_list['Symbol'].tolist()
-        yf_tickers = [f"{s}.NS" for s in raw_symbols]
-        
-        print(f"✅ Found {len(yf_tickers)} stocks. Fetching batch data...")
+        yf_tickers = [f"{s}.NS" for s in df_list['Symbol']]
         data = yf.download(yf_tickers, period="5d", interval="1d", group_by='ticker')
         
         stock_payloads = []
         for ticker in yf_tickers:
-            symbol = ticker.replace(".NS", "")
             try:
                 ticker_data = data[ticker].dropna()
-                if ticker_data.empty: continue
-                
-                current_price = ticker_data['Close'].iloc[-1]
-                prev_price = ticker_data['Close'].iloc[-2]
-                pct_change = ((current_price - prev_price) / prev_price) * 100
-                
+                curr = ticker_data['Close'].iloc[-1]
+                prev = ticker_data['Close'].iloc[-2]
+                pct = ((curr - prev) / prev) * 100
                 stock_payloads.append({
-                    "symbol": symbol,
-                    "price": round(current_price, 2),
-                    "percent_change": round(pct_change, 2),
+                    "symbol": ticker.replace(".NS", ""),
+                    "price": round(curr, 2),
+                    "percent_change": round(pct, 2),
                     "last_updated": datetime.now().isoformat()
                 })
-            except:
-                continue
-
-        if stock_payloads:
-            supabase.table("nifty_50_stocks").upsert(stock_payloads).execute()
-            print(f"🚀 Successfully synced {len(stock_payloads)} NIFTY 50 stocks.")
-
+            except: continue
+        
+        supabase.table("nifty_50_stocks").upsert(stock_payloads).execute()
+        print(f"🚀 Synced {len(stock_payloads)} NIFTY stocks.")
     except Exception as e:
-        print(f"🛑 Error syncing NIFTY list: {e}")
+        print(f"🛑 NIFTY Sync Error: {e}")
 
-# --- 5. Main Execution Engine ---
+# --- 6. Execution ---
 def run_daily_hunt():
-    print("🚀 Initiating MarketIntel Data Pipeline...")
+    print("🚀 Running MarketIntel Pipeline...")
     
-    # 1. Sync Macro Indices
+    # Indices
     nifty_h = fetch_index_history("^NSEI", "NIFTY 50")
     sensex_h = fetch_index_history("^BSESN", "SENSEX")
-    
-    if nifty_h:
+    if nifty_h: 
         supabase.table("index_history").delete().eq("index_name", "NIFTY 50").execute()
         supabase.table("index_history").insert(nifty_h).execute()
-    if sensex_h:
+    if sensex_h: 
         supabase.table("index_history").delete().eq("index_name", "SENSEX").execute()
         supabase.table("index_history").insert(sensex_h).execute()
 
-    # 2. Sync Official Sectors
     sync_sectors_dynamic()
-
-    # 3. Sync NIFTY 50 Stocks
+    sync_news_dynamic()
     sync_nifty_50_dynamic()
-    
-    print("🏁 Market Hunt Complete.")
+    print("🏁 Pipeline Finish.")
 
 if __name__ == "__main__":
     run_daily_hunt()
