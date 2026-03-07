@@ -44,7 +44,32 @@ def fetch_index_history(ticker_symbol, index_name):
         print(f"⚠️ Error fetching {index_name}: {e}")
         return []
 
-# --- 3. Dynamic NIFTY 50 Sync (NSE Official List) ---
+# --- 3. Dynamic Sector Sync (NSE Official Classification) ---
+def sync_sectors_dynamic():
+    print("🌐 Fetching official NSE Industry Classification...")
+    # Nifty 500 contains the most comprehensive list of active sectors in India
+    url = "https://archives.nseindia.com/content/indices/ind_nifty500list.csv"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    
+    try:
+        response = requests.get(url, headers=headers)
+        df = pd.read_csv(io.StringIO(response.text))
+        
+        # Extract unique industries (NSE uses 'Industry' for Sector)
+        unique_sectors = sorted(df['Industry'].unique().tolist())
+        
+        # Format for Supabase
+        sector_payloads = [{"name": s} for s in unique_sectors]
+        
+        # Upsert into market_sectors table
+        if sector_payloads:
+            supabase.table("market_sectors").upsert(sector_payloads).execute()
+            print(f"✅ Successfully synced {len(unique_sectors)} official NSE sectors.")
+            
+    except Exception as e:
+        print(f"🛑 Error syncing sectors: {e}")
+
+# --- 4. Dynamic NIFTY 50 Sync ---
 def sync_nifty_50_dynamic():
     print("🌐 Fetching official NIFTY 50 constituent list from NSE...")
     url = "https://archives.nseindia.com/content/indices/ind_nifty50list.csv"
@@ -86,11 +111,11 @@ def sync_nifty_50_dynamic():
     except Exception as e:
         print(f"🛑 Error syncing NIFTY list: {e}")
 
-# --- 4. Main Execution Engine ---
+# --- 5. Main Execution Engine ---
 def run_daily_hunt():
     print("🚀 Initiating MarketIntel Data Pipeline...")
     
-    # Sync Macro Indices
+    # 1. Sync Macro Indices
     nifty_h = fetch_index_history("^NSEI", "NIFTY 50")
     sensex_h = fetch_index_history("^BSESN", "SENSEX")
     
@@ -101,7 +126,12 @@ def run_daily_hunt():
         supabase.table("index_history").delete().eq("index_name", "SENSEX").execute()
         supabase.table("index_history").insert(sensex_h).execute()
 
+    # 2. Sync Official Sectors
+    sync_sectors_dynamic()
+
+    # 3. Sync NIFTY 50 Stocks
     sync_nifty_50_dynamic()
+    
     print("🏁 Market Hunt Complete.")
 
 if __name__ == "__main__":
