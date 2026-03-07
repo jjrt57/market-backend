@@ -44,7 +44,7 @@ def fetch_index_history(ticker_symbol, index_name):
         print(f"⚠️ Error fetching {index_name}: {e}")
         return []
 
-# --- 3. DYNAMIC NIFTY 50 SYNC (Zero-Maintenance) ---
+# --- 3. Dynamic NIFTY 50 Sync (NSE Official List) ---
 def sync_nifty_50_dynamic():
     print("🌐 Fetching official NIFTY 50 constituent list from NSE...")
     url = "https://archives.nseindia.com/content/indices/ind_nifty50list.csv"
@@ -57,15 +57,12 @@ def sync_nifty_50_dynamic():
         yf_tickers = [f"{s}.NS" for s in raw_symbols]
         
         print(f"✅ Found {len(yf_tickers)} stocks. Fetching batch data...")
-        
-        # Pull 5 days to ensure we have enough data for % change calculation
         data = yf.download(yf_tickers, period="5d", interval="1d", group_by='ticker')
         
         stock_payloads = []
         for ticker in yf_tickers:
             symbol = ticker.replace(".NS", "")
             try:
-                # Accessing multi-index dataframe from batch download
                 ticker_data = data[ticker].dropna()
                 if ticker_data.empty: continue
                 
@@ -79,11 +76,9 @@ def sync_nifty_50_dynamic():
                     "percent_change": round(pct_change, 2),
                     "last_updated": datetime.now().isoformat()
                 })
-            except Exception as e:
-                print(f"⚠️ Skipping {symbol}: {e}")
+            except:
                 continue
 
-        # Upsert into Supabase (Matches by 'symbol' primary key)
         if stock_payloads:
             supabase.table("nifty_50_stocks").upsert(stock_payloads).execute()
             print(f"🚀 Successfully synced {len(stock_payloads)} NIFTY 50 stocks.")
@@ -95,23 +90,18 @@ def sync_nifty_50_dynamic():
 def run_daily_hunt():
     print("🚀 Initiating MarketIntel Data Pipeline...")
     
-    # 1. Sync Macro Indices
-    nifty_history = fetch_index_history("^NSEI", "NIFTY 50")
-    sensex_history = fetch_index_history("^BSESN", "SENSEX")
+    # Sync Macro Indices
+    nifty_h = fetch_index_history("^NSEI", "NIFTY 50")
+    sensex_h = fetch_index_history("^BSESN", "SENSEX")
     
-    if nifty_history or sensex_history:
-        # Wipe old history to prevent bloat (Optional)
-        supabase.table("index_history").delete().neq("index_name", "dummy").execute()
-        
-        if nifty_history:
-            supabase.table("index_history").insert(nifty_history).execute()
-        if sensex_history:
-            supabase.table("index_history").insert(sensex_history).execute()
-        print("✅ Macro Indices History Synced.")
+    if nifty_h:
+        supabase.table("index_history").delete().eq("index_name", "NIFTY 50").execute()
+        supabase.table("index_history").insert(nifty_h).execute()
+    if sensex_h:
+        supabase.table("index_history").delete().eq("index_name", "SENSEX").execute()
+        supabase.table("index_history").insert(sensex_h).execute()
 
-    # 2. Sync the Dynamic NIFTY 50 List
     sync_nifty_50_dynamic()
-
     print("🏁 Market Hunt Complete.")
 
 if __name__ == "__main__":
