@@ -3,8 +3,10 @@ import time
 import json
 import pandas as pd
 import yfinance as yf
+import requests
+import io
+from datetime import datetime
 from supabase import create_client
-from nsepython import nse_eq
 
 # --- 1. Load Secrets ---
 supabase_data_raw = os.environ.get("SUPABASE_DATA")
@@ -23,23 +25,11 @@ except Exception as e:
 
 supabase = create_client(URL, KEY)
 
-# --- 2. Custom Sector Overrides ---
-CUSTOM_SECTORS = {
-    "RELIANCE": "Conglomerate",
-    "ADANIENT": "Conglomerate",
-    "BEL": "Defense & Aerospace",
-    "TCS": "Information Technology",
-    "HDFCBANK": "Financial Services",
-    "SBIN": "Public Sector Bank"
-}
-
-# --- 3. Fetch Intraday Index Data (5-minute intervals) ---
-def fetch_intraday_index(ticker_symbol, index_name):
-    # FIX: Using the correct 'index_name' variable!
+# --- 2. Fetch Macro Index History (6-Months) ---
+def fetch_index_history(ticker_symbol, index_name):
     print(f"📊 Fetching 6-month historical data for {index_name}...")
     try:
         ticker = yf.Ticker(ticker_symbol)
-        # Pulling 6 months of daily data for the new UI
         df = ticker.history(period="6mo", interval="1d")
         
         payloads = []
@@ -51,87 +41,76 @@ def fetch_intraday_index(ticker_symbol, index_name):
             })
         return payloads
     except Exception as e:
-        # FIX: Using the correct 'index_name' variable here too!
         print(f"⚠️ Error fetching {index_name}: {e}")
         return []
-# --- 4. Fetch Individual Stock Data ---
-def fetch_forensic_data(symbol):
-    try:
-        nse_data = nse_eq(symbol)
-        delivery_pct = nse_data.get('securityWiseDP', {}).get('deliveryToTradedQuantity', 0)
-        
-        ticker = yf.Ticker(f"{symbol}.NS")
-        info = ticker.info
-        
-        # Calculate Real Percentage Growth
-        prev_close = info.get('regularMarketPreviousClose', info.get('previousClose', 0))
-        curr_price = info.get('currentPrice', 0)
-        pct_change = 0.0
-        
-        if prev_close > 0 and curr_price > 0:
-            pct_change = round(((curr_price - prev_close) / prev_close) * 100, 2)
-        
-        return {
-            "delivery_percentage": float(delivery_pct),
-            "is_pledged": info.get('pledgedByPromoter', 0) > 0,
-            "price": curr_price,
-            "pe": info.get('forwardPE', 0),
-            "percent_change": pct_change, # The new growth metric!
-            "sector": info.get('sector', 'Unknown')
-        }
-    except Exception as e:
-        print(f"⚠️ Skipping {symbol}: {e}")
-        return None
 
-# --- 5. Main Execution Engine ---
+# --- 3. DYNAMIC NIFTY 50 SYNC (Zero-Maintenance) ---
+def sync_nifty_50_dynamic():
+    print("🌐 Fetching official NIFTY 50 constituent list from NSE...")
+    url = "https://archives.nseindia.com/content/indices/ind_nifty50list.csv"
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    
+    try:
+        response = requests.get(url, headers=headers)
+        df_list = pd.read_csv(io.StringIO(response.text))
+        raw_symbols = df_list['Symbol'].tolist()
+        yf_tickers = [f"{s}.NS" for s in raw_symbols]
+        
+        print(f"✅ Found {len(yf_tickers)} stocks. Fetching batch data...")
+        
+        # Pull 5 days to ensure we have enough data for % change calculation
+        data = yf.download(yf_tickers, period="5d", interval="1d", group_by='ticker')
+        
+        stock_payloads = []
+        for ticker in yf_tickers:
+            symbol = ticker.replace(".NS", "")
+            try:
+                # Accessing multi-index dataframe from batch download
+                ticker_data = data[ticker].dropna()
+                if ticker_data.empty: continue
+                
+                current_price = ticker_data['Close'].iloc[-1]
+                prev_price = ticker_data['Close'].iloc[-2]
+                pct_change = ((current_price - prev_price) / prev_price) * 100
+                
+                stock_payloads.append({
+                    "symbol": symbol,
+                    "price": round(current_price, 2),
+                    "percent_change": round(pct_change, 2),
+                    "last_updated": datetime.now().isoformat()
+                })
+            except Exception as e:
+                print(f"⚠️ Skipping {symbol}: {e}")
+                continue
+
+        # Upsert into Supabase (Matches by 'symbol' primary key)
+        if stock_payloads:
+            supabase.table("nifty_50_stocks").upsert(stock_payloads).execute()
+            print(f"🚀 Successfully synced {len(stock_payloads)} NIFTY 50 stocks.")
+
+    except Exception as e:
+        print(f"🛑 Error syncing NIFTY list: {e}")
+
+# --- 4. Main Execution Engine ---
 def run_daily_hunt():
     print("🚀 Initiating MarketIntel Data Pipeline...")
     
-    # 1. Wipe old index data to keep the database light (optional but recommended)
-    try:
+    # 1. Sync Macro Indices
+    nifty_history = fetch_index_history("^NSEI", "NIFTY 50")
+    sensex_history = fetch_index_history("^BSESN", "SENSEX")
+    
+    if nifty_history or sensex_history:
+        # Wipe old history to prevent bloat (Optional)
         supabase.table("index_history").delete().neq("index_name", "dummy").execute()
-    except Exception as e:
-        pass # If it fails, the table might just be empty
         
-    # 2. Fetch and Push Macro Indices
-    nifty_data = fetch_intraday_index("^NSEI", "NIFTY 50")
-    sensex_data = fetch_intraday_index("^BSESN", "SENSEX")
-    
-    if nifty_data:
-        supabase.table("index_history").insert(nifty_data).execute()
-    if sensex_data:
-        supabase.table("index_history").insert(sensex_data).execute()
+        if nifty_history:
+            supabase.table("index_history").insert(nifty_history).execute()
+        if sensex_history:
+            supabase.table("index_history").insert(sensex_history).execute()
+        print("✅ Macro Indices History Synced.")
 
-    print("✅ Macro Indices Synced.")
-
-    # 3. Fetch and Push Stock Picks
-    watchlist = ["RELIANCE", "TCS", "HDFCBANK", "BEL", "ADANIENT", "SBIN"]
-    print(f"🚀 Starting Hunt for {len(watchlist)} stocks...")
-    
-    for symbol in watchlist:
-        data = fetch_forensic_data(symbol)
-        if data:
-            raw_sector = data['sector']
-            final_sector = CUSTOM_SECTORS.get(symbol, raw_sector)
-            
-            payload = {
-                "symbol": symbol,
-                "price": data['price'],
-                "pe": data['pe'],
-                "percent_change": data['percent_change'], # Injects the real growth %
-                "sector": final_sector,
-                "delivery_percentage": data['delivery_percentage'],
-                "is_pledged": data['is_pledged'],
-                "sentiment_label": "High Sentiment" 
-            }
-            
-            try:
-                supabase.table("market_picks").insert(payload).execute()
-                print(f"✅ Logged {symbol} | Growth: {data['percent_change']}% | Sector: {final_sector}")
-            except Exception as e:
-                print(f"❌ Supabase Error for {symbol}: {e}")
-        
-        time.sleep(2)
+    # 2. Sync the Dynamic NIFTY 50 List
+    sync_nifty_50_dynamic()
 
     print("🏁 Market Hunt Complete.")
 
